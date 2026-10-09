@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#134e4a" />
+  <meta name="description" content="Hash text and files in your browser: MD5, SHA-1, SHA-256, SHA-384, SHA-512, CRC32. Nothing uploaded." />
+  <title>HashBox — hash text &amp; files in-browser</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>HashBox</h1>
+      <p class="sub">Hash text or files with MD5, SHA-1, SHA-256, SHA-384, SHA-512 and CRC32. Everything runs in your browser — nothing is uploaded.</p>
+    </header>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Algorithms</h2>
+        <label class="switch"><input type="checkbox" id="upperToggle" /> <span>Uppercase</span></label>
+      </div>
+      <div class="chips" id="algoChips" role="group" aria-label="Algorithms"></div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Input type">
+      <button type="button" role="tab" id="tabText" aria-controls="panelText" aria-selected="true" class="tab active">Text</button>
+      <button type="button" role="tab" id="tabFiles" aria-controls="panelFiles" aria-selected="false" class="tab">Files</button>
+    </div>
+
+    <section class="card panel" id="panelText" role="tabpanel" aria-labelledby="tabText">
+      <label class="lbl" for="textInput">Text (UTF-8)</label>
+      <textarea id="textInput" rows="5" spellcheck="false" autocomplete="off" placeholder="Type or paste text — hashes update live"></textarea>
+      <div class="toolbar">
+        <button type="button" class="ghost" id="sampleBtn">Sample “abc”</button>
+        <button type="button" class="ghost" id="clearTextBtn">Clear</button>
+        <button type="button" class="ghost" id="copyAllTextBtn">Copy all</button>
+        <span class="meta" id="textMeta">0 bytes</span>
+      </div>
+      <div class="hashes" id="textHashes"></div>
+    </section>
+
+    <section class="card panel" id="panelFiles" role="tabpanel" aria-labelledby="tabFiles" hidden>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose files to hash">
+        <input type="file" id="fileInput" multiple hidden />
+        <strong>Drop files here</strong>
+        <span>or click to choose — one or many. Files are read locally in chunks.</span>
+      </div>
+      <div class="toolbar" id="fileToolbar" hidden>
+        <button type="button" class="ghost" id="addFilesBtn">Add files</button>
+        <button type="button" class="ghost" id="clearFilesBtn">Clear all</button>
+        <button type="button" class="ghost" id="copyAllFilesBtn">Copy all (checksum list)</button>
+      </div>
+      <div id="fileList"></div>
+    </section>
+
+    <section class="card">
+      <label class="lbl" for="expected">Compare — paste an expected hash</label>
+      <input type="text" id="expected" spellcheck="false" autocomplete="off" placeholder="e.g. ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" />
+      <div class="status" id="compareStatus" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="card notice">
+      <strong>Private by design.</strong> Text and files never leave this tab — no uploads, no accounts, no analytics. Works offline after the first visit.
+    </section>
+
+    <details class="card">
+      <summary>How it works</summary>
+      <p>
+        SHA-1 / SHA-256 / SHA-384 / SHA-512 use your browser’s built-in Web Crypto API. MD5 and CRC32 use small bundled JavaScript implementations (no CDN).
+        Files are read in 4&nbsp;MiB chunks inside a Web Worker so the page stays responsive; MD5 and CRC32 stream chunk-by-chunk,
+        while Web Crypto needs the whole file in memory, so SHA hashes are limited to files under 2&nbsp;GiB.
+        Text is hashed as UTF-8 bytes. MD5 and SHA-1 are fine for checksums but are not collision-resistant — prefer SHA-256+ for security.
+      </p>
+    </details>
+  </main>
+  <footer>
+    Free &amp; open source · <a href="https://github.com/shaikbasha1437/hashbox">GitHub</a>
+  </footer>
+  <div class="toast" id="toast" hidden>Copied</div>
+  <script src="vendor/md5.js"></script>
+  <script src="vendor/crc32.js"></script>
+  <script src="hashcore.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  </script>
+</body>
+</html>
